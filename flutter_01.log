@@ -1,0 +1,85 @@
+Flutter crash report; please file at https://github.com/flutter/flutter/issues.
+
+## command
+
+flutter build flx --suppress-analytics --target C:\apps\ultistats_tracker\lib\main.dart --output-file C:\apps\ultistats_tracker\build\app\intermediates\flutter\debug/app.flx --snapshot C:\apps\ultistats_tracker\build\app\intermediates\flutter\debug/snapshot_blob.bin --depfile C:\apps\ultistats_tracker\build\app\intermediates\flutter\debug/snapshot_blob.bin.d --working-dir C:\apps\ultistats_tracker\build\app\intermediates\flutter\debug/flutter_assets
+
+## exception
+
+ArgumentError: Invalid argument(s): Cannot find executable for C:\flutter\bin\cache\artifacts\engine\android-arm-profile\windows-x64\gen_snapshot.
+
+```
+#0      _getExecutable (package:process/src/interface/local_process_manager.dart:113)
+#1      LocalProcessManager.start (package:process/src/interface/local_process_manager.dart:41)
+#2      runCommand (package:flutter_tools/src/base/process.dart:108)
+#3      runCommandAndStreamOutput (package:flutter_tools/src/base/process.dart:126)
+<asynchronous suspension>
+#4      GenSnapshot.run (package:flutter_tools/src/base/build.dart:53)
+#5      Snapshotter._build (package:flutter_tools/src/base/build.dart:209)
+<asynchronous suspension>
+#6      Snapshotter.buildScriptSnapshot (package:flutter_tools/src/base/build.dart:174)
+<asynchronous suspension>
+#7      build (package:flutter_tools/src/flx.dart:62)
+<asynchronous suspension>
+#8      BuildFlxCommand.runCommand (package:flutter_tools/src/commands/build_flx.dart:50)
+<asynchronous suspension>
+#9      FlutterCommand.verifyThenRunCommand (package:flutter_tools/src/runner/flutter_command.dart:290)
+<asynchronous suspension>
+#10     FlutterCommand.run (package:flutter_tools/src/runner/flutter_command.dart:228)
+<asynchronous suspension>
+#11     CommandRunner.runCommand (package:args/command_runner.dart:194)
+<asynchronous suspension>
+#12     FlutterCommandRunner.runCommand (package:flutter_tools/src/runner/flutter_command_runner.dart:286)
+<asynchronous suspension>
+#13     CommandRunner.run.<anonymous closure> (package:args/command_runner.dart:109)
+#14     new Future.sync (dart:async/future.dart:222)
+#15     CommandRunner.run (package:args/command_runner.dart:109)
+#16     FlutterCommandRunner.run (package:flutter_tools/src/runner/flutter_command_runner.dart:166)
+#17     run.<anonymous closure> (package:flutter_tools/runner.dart:90)
+<asynchronous suspension>
+#18     AppContext._run (package:flutter_tools/src/base/context.dart:76)
+<asynchronous suspension>
+#19     AppContext.runInZone.<anonymous closure> (package:flutter_tools/src/base/context.dart:66)
+#20     _rootRun (dart:async/zone.dart:1126)
+#21     _CustomZone.run (dart:async/zone.dart:1023)
+#22     runZoned (dart:async/zone.dart:1501)
+#23     AppContext.runInZone (package:flutter_tools/src/base/context.dart:65)
+#24     run (package:flutter_tools/runner.dart:61)
+<asynchronous suspension>
+#25     main (package:flutter_tools/executable.dart:48)
+<asynchronous suspension>
+#26     main (file:///C:/flutter/packages/flutter_tools/bin/flutter_tools.dart:16)
+#27     _startIsolate.<anonymous closure> (dart:isolate-patch/dart:isolate/isolate_patch.dart:277)
+#28     _RawReceivePortImpl._handleMessage (dart:isolate-patch/dart:isolate/isolate_patch.dart:165)
+```
+
+## flutter doctor
+
+```
+[!] Flutter (Channel beta, v0.1.5, on Microsoft Windows [Version 10.0.16299.371], locale en-US)
+    • Flutter version 0.1.5 at C:\flutter
+    • Framework revision 3ea4d06340 (10 weeks ago), 2018-02-22 11:12:39 -0800
+    • Engine revision ead227f118
+    • Dart version 2.0.0-dev.28.0.flutter-0b4f01f759
+    ✗ Downloaded executables cannot execute on host (see https://github.com/flutter/flutter/issues/6207 for more information)
+
+[✓] Android toolchain - develop for Android devices (Android SDK 27.0.3)
+    • Android SDK at C:\Users\frankw\AppData\Local\Android\sdk
+    • Android NDK location not configured (optional; useful for native profiling support)
+    • Platform android-27, build-tools 27.0.3
+    • Java binary at: C:\Program Files\Android\Android Studio1\jre\bin\java
+    • Java version OpenJDK Runtime Environment (build 1.8.0_152-release-915-b01)
+
+[✓] Android Studio (version 3.0)
+    • Android Studio at C:\Program Files\Android\Android Studio1
+    • Java version OpenJDK Runtime Environment (build 1.8.0_152-release-915-b01)
+
+[✓] VS Code (version 1.22.2)
+    • VS Code at C:\Program Files (x86)\Microsoft VS Code
+    • Dart Code extension version 2.12.0
+
+[✓] Connected devices (1 available)
+    • SM G930W8 • ce061606aaa6403b04 • android-arm64 • Android 7.0 (API 24)
+
+! Doctor found issues in 1 category.
+```
