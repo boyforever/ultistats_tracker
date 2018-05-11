@@ -6,26 +6,29 @@ import 'ioclass.dart';
 final double _kPickerSheetHeight = 216.0;
 final double _kPickerItemHeight = 36.0;
 final nums = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30];
-GameData _game = new GameData("",0,0,0,0,0,0);
+//GameData _game = new GameData("",0,0,0,0,0,0);
 
 class StatsScreen extends StatefulWidget {
   //final ContentStorage storage;
-  final Game game;
-  StatsScreen({Key key, @required  this.game}) : super(key: key);
+  //final GameData gameData;
+  final Tournament tournament;
+  final int index;
+  StatsScreen({Key key, @required this.tournament, this.index}) : super(key: key);
   @override
   StatsScreenState createState() => new StatsScreenState();
 }
 
 class StatsScreenState extends State<StatsScreen>{
-  @override
-  void initState() {
-    super.initState();
-    loadGameData(widget.game.id).then((GameData value){
-      setState((){
-        _game = value;
-      });
-    });
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   //_game = widget.gameData;
+  //   // loadGameData(widget.game.id).then((GameData value){
+  //   //   setState((){
+  //   //     _game = value;
+  //   //   });
+  //   // });
+  // }
   Widget _singlePicker(FixedExtentScrollController scrollController, int _controllerId, String _label, Color _labelColor){    
     return 
     new Column(children: <Widget>[
@@ -48,12 +51,12 @@ class StatsScreenState extends State<StatsScreen>{
                 onSelectedItemChanged: (int index) {
                   setState(() {
                     switch(_controllerId){
-                      case 1: _game.homeScore = index; break;
-                      case 2: _game.guestScore = index; break;
-                      case 3: _game.goals = index; break;
-                      case 4: _game.assists = index; break;
-                      case 5: _game.blocks = index; break;
-                      case 6: _game.turnovers = index; break;
+                      case 1: widget.tournament.games[widget.index].homeScore = index; break;
+                      case 2: widget.tournament.games[widget.index].guestScore = index; break;
+                      case 3: widget.tournament.games[widget.index].goals = index; break;
+                      case 4: widget.tournament.games[widget.index].assists = index; break;
+                      case 5: widget.tournament.games[widget.index].blocks = index; break;
+                      case 6: widget.tournament.games[widget.index].turnovers = index; break;
                     }
                   });
                   // Scaffold.of(context).showSnackBar(new SnackBar(content: new Text("You pressed $index"), action: new SnackBarAction(label: "Click to Save.", onPressed: (){rewriteGameData(_game);},),));
@@ -74,8 +77,8 @@ class StatsScreenState extends State<StatsScreen>{
     }
 
     Widget _buildScorePicker() {
-      final FixedExtentScrollController scrollController1 = new FixedExtentScrollController(initialItem: _game.homeScore);
-      final FixedExtentScrollController scrollController2 = new FixedExtentScrollController(initialItem: _game.guestScore);
+      final FixedExtentScrollController scrollController1 = new FixedExtentScrollController(initialItem: widget.tournament.games[widget.index].homeScore);
+      final FixedExtentScrollController scrollController2 = new FixedExtentScrollController(initialItem: widget.tournament.games[widget.index].guestScore);
       return new Column(
         children: <Widget>[
           new Row(
@@ -92,12 +95,11 @@ class StatsScreenState extends State<StatsScreen>{
         ],
     );
   }
-  // Blocks, Turnovers
   Widget _buildStatsPicker() {
-    final FixedExtentScrollController scrollController3 = new FixedExtentScrollController(initialItem: _game.goals);
-    final FixedExtentScrollController scrollController4 = new FixedExtentScrollController(initialItem: _game.assists);
-    final FixedExtentScrollController scrollController5 = new FixedExtentScrollController(initialItem: _game.blocks);
-    final FixedExtentScrollController scrollController6 = new FixedExtentScrollController(initialItem: _game.turnovers);
+    final FixedExtentScrollController scrollController3 = new FixedExtentScrollController(initialItem: widget.tournament.games[widget.index].goals);
+    final FixedExtentScrollController scrollController4 = new FixedExtentScrollController(initialItem: widget.tournament.games[widget.index].assists);
+    final FixedExtentScrollController scrollController5 = new FixedExtentScrollController(initialItem: widget.tournament.games[widget.index].blocks);
+    final FixedExtentScrollController scrollController6 = new FixedExtentScrollController(initialItem: widget.tournament.games[widget.index].turnovers);
     return new Column(
       children: <Widget>[
         new Row(
@@ -131,7 +133,7 @@ class StatsScreenState extends State<StatsScreen>{
         child: new Scaffold(
           appBar: new AppBar(
             leading: new IconButton(icon: new Icon(Icons.arrow_back), onPressed: (){Navigator.pop(context);},),            
-            title: new Text(widget.game.home + " VS. " + widget.game.guest),
+            title: new Text(widget.tournament.games[widget.index].home + " VS. " + widget.tournament.games[widget.index].guest),
             bottom: new TabBar(
               tabs: [
               new Tab(icon: new Icon(Icons.games),),
@@ -149,7 +151,10 @@ class StatsScreenState extends State<StatsScreen>{
             elevation: 0.0,
             child: new Icon(Icons.check,),
             backgroundColor: Colors.lightBlueAccent,
-            onPressed: (){ rewriteGameData(_game);}
+            onPressed: (){ 
+              //widget.game.data.gameid = widget.game.id;
+              rewriteGames(widget.tournament);
+              }
           )            
         )
       ),

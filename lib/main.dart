@@ -1,4 +1,3 @@
-
 import 'dart:async' show Future;
 import 'dart:io';
 import 'ioclass.dart';
@@ -8,7 +7,8 @@ import 'statsscreen.dart';
 
 void main() => runApp(new MyApp());
 List<Tournament> _tournaments = new List<Tournament>();
-List<Game> _games = new List<Game>();
+//List<Game> _games = new List<Game>();
+//List<GameData> _gameData = new List<GameData>();
 
 class MyApp extends StatelessWidget {
   @override
@@ -28,29 +28,38 @@ class TournamentsScreen extends StatefulWidget{
   TournamentsScreenState createState() => new TournamentsScreenState();
 }
 class TournamentsScreenState extends State<TournamentsScreen>{
+  //List<ListTile> _gamesList = new List<ListTile>();
   @override
   void initState() {
     super.initState();
-    loadTournaments().then((List<Tournament> value){
+    loadTournaments().then((List<Tournament> t){
       setState((){
-        _tournaments = value;
+        _tournaments = t;
         for(var _t in _tournaments){
-          loadGames(_t.id).then((List<Game> value){
-            _games.addAll(value);
+          loadGames(_t.id).then((List<Game> g){
+            _t.games = g;           
           });
         }
+        // for(var _g in _games){
+        //   loadGameData(_g.id).then((GameData value){
+        //     _g.data = value;
+        //   });
+        // }
       });
     });
   }
-  void nextToStatsScreen(Game t){
-    Navigator.push(context, new MaterialPageRoute(builder: (context) => new StatsScreen(game: t,)));
+  void nextToStatsScreen(Tournament t, int index){
+    //if(g.data == null) g.data = new GameData(g.id,0,0,0,0,0,0);
+    if(t.games[index] != null){
+      Navigator.push(context, new MaterialPageRoute(builder: (context) => new StatsScreen(tournament: t, index: index,)));
+    }
   }
-  List<ListTile> getListOfGames(String tournamentid){
+  List<ListTile> getListOfGames(Tournament t){
     List<ListTile> results = new List<ListTile>();
-    for(Game _g in _games.where((_g)=>_g.tournamentid == tournamentid)){
-      if(_g != null){
-      results.add(new ListTile(title: new Text(_g.home + " VS. " + _g.guest , style: new TextStyle(fontSize: 18.0, fontWeight: FontWeight.normal, color: Colors.black),),onTap: (){ 
-        nextToStatsScreen(_g);
+    for(int i=0; i<t.games.length; i++){
+      if(t.games[i] != null){
+        results.add(new ListTile(title: new Text(t.games[i].home + " VS. " + t.games[i].guest , style: new TextStyle(fontSize: 18.0, fontWeight: FontWeight.normal, color: Colors.black),),onTap: (){ 
+        nextToStatsScreen(t, i);
         },));
       }
     }
@@ -66,22 +75,23 @@ class TournamentsScreenState extends State<TournamentsScreen>{
       results.add(new ExpansionTile(
         initiallyExpanded: true,
         leading: new IconButton(icon: new Icon(Icons.add_circle, color: Colors.blueAccent,),onPressed: (){ 
-          showDialog(context: context, builder: (context)=>inputGameDialog(item.id) );
-          }),//add game
-        title: new Text(item.title + " - " + item.date, 
-        style: new TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.black),),
-        children: getListOfGames(item.id)
-        ));
+          showDialog(context: context, builder: (context)=>inputGameDialog(item) );
+          }),
+        title: new Text(item.title + " - " + item.date, style: new TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.black),),
+        children: getListOfGames(item)
+        )
+      );
     }
     return results;
   }
-  Future<File> saveGame(String tournamentid, String guest) async {
+  Future<File> saveGame(Tournament t, String guest) async {
     setState(() { 
-      _games.add(new Game("g" + new DateTime.now().millisecondsSinceEpoch.toString(), tournamentid, guest)); 
+      t.games.add(new Game("g" + new DateTime.now().millisecondsSinceEpoch.toString(), t.id, guest, 0,0,0,0,0,0));
+      //_.add(new Game("g" + new DateTime.now().millisecondsSinceEpoch.toString(), tournamentid, guest, 0,0,0,0,0,0)); 
     });
-    return rewriteGames(tournamentid, _games);
+    return rewriteGames(t);
   }
-  Widget inputGameDialog(String tournamentid){
+  Widget inputGameDialog(Tournament t){
     final _titleController = new TextEditingController();
     bool _isButtonDisabled = true;
     return new SimpleDialog(
@@ -94,7 +104,9 @@ class TournamentsScreenState extends State<TournamentsScreen>{
         decoration: const InputDecoration( labelText: 'Enter Opponent Team Name', ),
         style: Theme.of(context).textTheme.subhead,
       ),
-      new FlatButton(disabledColor: Colors.grey, padding: new EdgeInsets.only(top:20.0), onPressed: (){ if(!_isButtonDisabled) { Navigator.pop(context, "SAVE"); saveGame(tournamentid,_titleController.text);}}, child: new Icon(Icons.save, size: 48.0,),),
+      new FlatButton(disabledColor: Colors.grey, padding: new EdgeInsets.only(top:20.0), onPressed: (){ if(!_isButtonDisabled) { 
+        Navigator.pop(context, "SAVE"); 
+        saveGame(t,_titleController.text);}}, child: new Icon(Icons.save, size: 48.0,),),
       ]            
     );
   }
@@ -122,11 +134,13 @@ class TournamentsScreenState extends State<TournamentsScreen>{
           selectedDate: _fromDate,          
           selectDate: (DateTime date) {
             setState(() {
-              _fromDate = date;
+              _fromDate = date; // "${date.year.toString()}-${date.month.toString().padLeft(2,'0')}-${date.day.toString().padLeft(2,'0')}";
             });
           },
         ),
-        new FlatButton(padding: new EdgeInsets.only(top:20.0), onPressed: (){if(!_isButtonDisabled) {Navigator.pop(context, "SAVE"); saveTournament(_titleController.text, _fromDate.toString());}}, child: new Icon(Icons.save, size: 48.0,),),
+        new FlatButton(padding: new EdgeInsets.only(top:20.0), onPressed: (){if(!_isButtonDisabled) {
+          Navigator.pop(context, "SAVE"); 
+          saveTournament(_titleController.text, new DateFormat.yMMMd().format(_fromDate) );}}, child: new Icon(Icons.save, size: 48.0,),),
       ]
     );
   }
@@ -215,15 +229,6 @@ class _DateTimePicker extends StatelessWidget {
     if (picked != null && picked != selectedDate)
       selectDate(picked);
   }
-
-  // Future<Null> _selectTime(BuildContext context) async {
-  //   final TimeOfDay picked = await showTimePicker(
-  //     context: context,
-  //     initialTime: selectedTime
-  //   );
-  //   if (picked != null && picked != selectedTime)
-  //     selectTime(picked);
-  // }
 
   @override
   Widget build(BuildContext context) {
