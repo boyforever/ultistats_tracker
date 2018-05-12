@@ -4,22 +4,16 @@ import 'package:path_provider/path_provider.dart';
 
 class Tournament {
   String id, title, date;
+  int goals=0, assists=0, blocks=0, turnovers=0;
   List<Game> games;
-  Tournament([this.id, this.title, this.date, this.games]);
+  Tournament([this.id, this.title, this.date, this.games, this.goals, this.assists, this.blocks, this.turnovers]);
 }
 class Game {
   String id, tournamentid, home="Bayview", guest;  
-  int homeScore, guestScore, goals, assists, blocks, turnovers;
+  int homeScore=0, guestScore=0, goals=0, assists=0, blocks=0, turnovers=0;
   //GameData data;
   Game([this.id, this.tournamentid, this.guest, this.homeScore, this.guestScore, this.goals, this.assists, this.blocks, this.turnovers]);
 }
-// class GameData {
-//   String gameid;
-//   int homeScore, guestScore, goals, assists, blocks, turnovers;
-//   GameData([this.gameid, this.homeScore, this.guestScore, this.goals, this.assists, this.blocks, this.turnovers]);
-// }
-
-// class ContentStorage { 
   // Tournament file
   Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
@@ -35,7 +29,7 @@ class Game {
       final file = await _localFile("tournaments");
       String contents = await file.readAsString();
       List<String> list = contents.split("|");
-      for(var i = 0; i < list.length; i=i+3) _ts.add(new Tournament(list[i], list[i+1], list[i+2]));
+      for(var i = 0; i < list.length; i=i+3) _ts.add(new Tournament(list[i], list[i+1], list[i+2],new List<Game>(), 0,0,0,0));
     } catch (e) {
     } 
     return _ts;
@@ -67,20 +61,3 @@ class Game {
       return file.writeAsString(_x.substring(1), mode: FileMode.WRITE_ONLY);
     } catch(er) { return null;}
   }
-  // game data
-  // Future<GameData> loadGameData(String gameid) async {
-  //   try{
-  //     final file = await _localFile(gameid);
-  //     String contents = await file.readAsString();
-  //     List<String> list = contents.split("|");
-  //     return new GameData(list[0], int.parse(list[1]), int.parse(list[2]), int.parse(list[3]), int.parse(list[4]), int.parse(list[5]), int.parse(list[6]) );
-  //   } catch(e) { return new GameData(gameid, 0,0,0,0,0,0);}
-  // }
-  // Future<File> rewriteGameData(GameData g) async {
-  //   try{
-  //     final file = await _localFile(g.gameid);
-  //     String _x = g.gameid + "|" + g.homeScore.toString() + "|" + g.guestScore.toString() + "|" + g.goals.toString() + "|" + g.assists.toString() + "|" + g.blocks.toString() + "|" + g.turnovers.toString();
-  //     return file.writeAsString(_x, mode: FileMode.WRITE_ONLY);
-  //   }catch(er) { return null;}
-  // }
-// }

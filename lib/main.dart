@@ -7,9 +7,6 @@ import 'statsscreen.dart';
 
 void main() => runApp(new MyApp());
 List<Tournament> _tournaments = new List<Tournament>();
-//List<Game> _games = new List<Game>();
-//List<GameData> _gameData = new List<GameData>();
-
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -22,72 +19,100 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
 class TournamentsScreen extends StatefulWidget{
   @override
   TournamentsScreenState createState() => new TournamentsScreenState();
 }
 class TournamentsScreenState extends State<TournamentsScreen>{
-  //List<ListTile> _gamesList = new List<ListTile>();
   @override
   void initState() {
     super.initState();
     loadTournaments().then((List<Tournament> t){
       setState((){
         _tournaments = t;
+        int _g=0, _a=0, _b=0, _o=0;
         for(var _t in _tournaments){
           loadGames(_t.id).then((List<Game> g){
-            _t.games = g;           
+            _t.games = g; 
+            if(g!=null){
+              for (var item in g) {
+                _g += item.goals;
+                _a += item.assists;
+                _b += item.blocks;
+                _o += item.turnovers;
+              } 
+            }
+            _t.goals = _g;
+            _t.assists = _a;
+            _t.blocks = _b;
+            _t.turnovers = _o;     
           });
         }
-        // for(var _g in _games){
-        //   loadGameData(_g.id).then((GameData value){
-        //     _g.data = value;
-        //   });
-        // }
       });
     });
   }
   void nextToStatsScreen(Tournament t, int index){
-    //if(g.data == null) g.data = new GameData(g.id,0,0,0,0,0,0);
     if(t.games[index] != null){
       Navigator.push(context, new MaterialPageRoute(builder: (context) => new StatsScreen(tournament: t, index: index,)));
     }
   }
   List<ListTile> getListOfGames(Tournament t){
     List<ListTile> results = new List<ListTile>();
+    if(t.games == null) {
+      results.add(getEmptyGame(t));
+      return results;
+    } 
     for(int i=0; i<t.games.length; i++){
       if(t.games[i] != null){
-        results.add(new ListTile(title: new Text(t.games[i].home + " VS. " + t.games[i].guest , style: new TextStyle(fontSize: 18.0, fontWeight: FontWeight.normal, color: Colors.black),),onTap: (){ 
+        results.add(new ListTile(title: new Text(t.games[i].home + " VS. " + t.games[i].guest , style: new TextStyle(fontSize: 18.0, fontWeight: FontWeight.normal, color: Colors.black),),isThreeLine: true, subtitle: new Text(t.games[i].homeScore.toString() + " - " + t.games[i].guestScore.toString() + "  goals:" + t.games[i].goals.toString() + " assists:" + t.games[i].assists.toString() + " blocks:" + t.games[i].blocks.toString() + "  turnovers:" + t.games[i].turnovers.toString()), onTap: (){ 
         nextToStatsScreen(t, i);
         },));
       }
     }
+    results.add(getEmptyGame(t));
     return results;
+  }
+  Widget getEmptyGame(Tournament t){
+    return new ListTile(title: new FlatButton(child: new Text("New opponent team", style: new TextStyle(fontSize: 14.0, fontWeight: FontWeight.normal, color: Colors.blueGrey)), onPressed: (){showDialog(context: context, builder: (context)=>inputGameDialog(t) );},),);
+  }
+  Widget getEmptyTournament(){
+    return new ExpansionTile(
+        initiallyExpanded: true,
+        title: new FlatButton(child: new Text("New tournament", style: new TextStyle(fontSize: 16.0, fontWeight: FontWeight.normal, color: Colors.blueGrey),), onPressed: (){showDialog(context: context, builder: (context)=>inputTournamentDialog() );},),
+    );
+      
   }
   List<Widget> getListOfTournaments(){    
     List<Widget> results = new List<Widget>();    
     if (_tournaments == null) {
-      results.add(new Text("Sorry, something went wrong on our end."));
+      results.add(getEmptyTournament());
       return results;
     }
     for (var item in _tournaments) {
+      item.goals = 0;
+      item.assists = 0;
+      item.blocks = 0;
+      item.turnovers = 0;
+      for (var gi in item.games) {
+        item.goals += gi.goals;
+        item.assists += gi.assists;
+        item.blocks += gi.blocks;
+        item.turnovers += gi.turnovers;
+      } 
       results.add(new ExpansionTile(
-        initiallyExpanded: true,
-        leading: new IconButton(icon: new Icon(Icons.add_circle, color: Colors.blueAccent,),onPressed: (){ 
-          showDialog(context: context, builder: (context)=>inputGameDialog(item) );
-          }),
-        title: new Text(item.title + " - " + item.date, style: new TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.black),),
+        initiallyExpanded: true,        
+        title: new Text(item.title + " - " + item.date + "\ngoals:" + item.goals.toString() + "  assists:" + item.assists.toString() +"\nblocks:"+ item.blocks.toString() +"  turnovers:" + item.turnovers.toString(), style: new TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.black),),        
         children: getListOfGames(item)
         )
       );
     }
+    results.add(getEmptyTournament());
     return results;
   }
   Future<File> saveGame(Tournament t, String guest) async {
     setState(() { 
+      if(t.games == null) t.games = new List<Game>();
       t.games.add(new Game("g" + new DateTime.now().millisecondsSinceEpoch.toString(), t.id, guest, 0,0,0,0,0,0));
-      //_.add(new Game("g" + new DateTime.now().millisecondsSinceEpoch.toString(), tournamentid, guest, 0,0,0,0,0,0)); 
     });
     return rewriteGames(t);
   }
@@ -111,7 +136,7 @@ class TournamentsScreenState extends State<TournamentsScreen>{
     );
   }
   Future<File> saveTournament(String title, String date) async {    
-    setState(() { _tournaments.add(new Tournament('t' + new DateTime.now().millisecondsSinceEpoch.toString(), title, date)); });
+    setState(() { _tournaments.add(new Tournament('t' + new DateTime.now().millisecondsSinceEpoch.toString(), title, date, new List<Game>(), 0,0,0,0)); });
     return rewriteTournaments(_tournaments);
   }
   Widget inputTournamentDialog(){
@@ -134,7 +159,7 @@ class TournamentsScreenState extends State<TournamentsScreen>{
           selectedDate: _fromDate,          
           selectDate: (DateTime date) {
             setState(() {
-              _fromDate = date; // "${date.year.toString()}-${date.month.toString().padLeft(2,'0')}-${date.day.toString().padLeft(2,'0')}";
+              _fromDate = date; 
             });
           },
         ),
@@ -153,14 +178,6 @@ class TournamentsScreenState extends State<TournamentsScreen>{
           padding: const EdgeInsets.all(20.0),
           children: getListOfTournaments(),
         ),
-        floatingActionButton: new FloatingActionButton(
-          elevation: 0.0,
-          child: new Icon(Icons.add,),
-          backgroundColor: Colors.lightBlueAccent,
-          onPressed: (){
-            showDialog(context: context, builder: (context)=>inputTournamentDialog() );
-          }
-        )
       );  
   } 
 }

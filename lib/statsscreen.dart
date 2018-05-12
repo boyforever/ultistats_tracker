@@ -6,29 +6,14 @@ import 'ioclass.dart';
 final double _kPickerSheetHeight = 216.0;
 final double _kPickerItemHeight = 36.0;
 final nums = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30];
-//GameData _game = new GameData("",0,0,0,0,0,0);
-
 class StatsScreen extends StatefulWidget {
-  //final ContentStorage storage;
-  //final GameData gameData;
   final Tournament tournament;
   final int index;
   StatsScreen({Key key, @required this.tournament, this.index}) : super(key: key);
   @override
   StatsScreenState createState() => new StatsScreenState();
 }
-
 class StatsScreenState extends State<StatsScreen>{
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   //_game = widget.gameData;
-  //   // loadGameData(widget.game.id).then((GameData value){
-  //   //   setState((){
-  //   //     _game = value;
-  //   //   });
-  //   // });
-  // }
   Widget _singlePicker(FixedExtentScrollController scrollController, int _controllerId, String _label, Color _labelColor){    
     return 
     new Column(children: <Widget>[
@@ -41,7 +26,6 @@ class StatsScreenState extends State<StatsScreen>{
             fontSize: 22.0,
           ),
           child: new GestureDetector(
-            // Blocks taps from propagating to the modal sheet and popping.
             onTap: () {},
             child: new SafeArea(
               child: new CupertinoPicker(
@@ -59,7 +43,6 @@ class StatsScreenState extends State<StatsScreen>{
                       case 6: widget.tournament.games[widget.index].turnovers = index; break;
                     }
                   });
-                  // Scaffold.of(context).showSnackBar(new SnackBar(content: new Text("You pressed $index"), action: new SnackBarAction(label: "Click to Save.", onPressed: (){rewriteGameData(_game);},),));
                 },
                 children: new List<Widget>.generate(nums.length, (int index) {
                   return new Center(child:
@@ -73,7 +56,6 @@ class StatsScreenState extends State<StatsScreen>{
       ),
       new Text(_label, textAlign: TextAlign.center, style: new TextStyle(color: _labelColor, fontWeight: FontWeight.bold, fontSize: 24.0),)
       ]);
-
     }
 
     Widget _buildScorePicker() {
@@ -132,7 +114,7 @@ class StatsScreenState extends State<StatsScreen>{
         length: 2,
         child: new Scaffold(
           appBar: new AppBar(
-            leading: new IconButton(icon: new Icon(Icons.arrow_back), onPressed: (){Navigator.pop(context);},),            
+            leading: new IconButton(icon: new Icon(Icons.arrow_back), onPressed: (){ rewriteGames(widget.tournament); Navigator.pop(context);},),            
             title: new Text(widget.tournament.games[widget.index].home + " VS. " + widget.tournament.games[widget.index].guest),
             bottom: new TabBar(
               tabs: [
@@ -146,16 +128,7 @@ class StatsScreenState extends State<StatsScreen>{
                   _buildScorePicker(),
                   _buildStatsPicker(),
                 ],                
-          ),              
-          floatingActionButton: new FloatingActionButton(
-            elevation: 0.0,
-            child: new Icon(Icons.check,),
-            backgroundColor: Colors.lightBlueAccent,
-            onPressed: (){ 
-              //widget.game.data.gameid = widget.game.id;
-              rewriteGames(widget.tournament);
-              }
-          )            
+          ),      
         )
       ),
     );
